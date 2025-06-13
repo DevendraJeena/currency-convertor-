@@ -43,29 +43,19 @@ btn.addEventListener("click", (evt) => {
 });
 
 const updateExchangeRate = async () => {
-  try {
-    const amountInput = document.querySelector(".amount input");
-    let amtVal = parseFloat(amountInput.value);
-    if (isNaN(amtVal) || amtVal < 1) {
-      amtVal = 1;
-      amountInput.value = "1";
-    }
+  let amount = document.querySelector(".amount input");
+  let amtVal = amount.value;
 
-    // Build new API URL (we’ll ignore BASE_URL here)
-    const base = fromCurr.value; // e.g. "USD"
-    const target = toCurr.value; // e.g. "INR"
-    const URL = `https://api.exchangerate-api.com/v4/latest/${base}`;
-
-    const response = await fetch(URL);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-
-    const rate = data.rates[target];
-    if (rate === undefined) throw new Error("Rate not found");
-    const converted = (amtVal * rate).toFixed(2);
-    msg.innerText = `${amtVal} ${base} = ${converted} ${target}`;
-  } catch (err) {
-    console.error("Exchange rate error:", err);
-    msg.innerText = "⚠ Could not fetch rate. Try again later.";
+  if (amtVal === "" || amtVal < 1) {
+    amtVal = 1;
+    amount.value = "1";
   }
+
+  const URL = `${BASE_URL}/${fromCurr.value.toLowerCase()}/${toCurr.value.toLowerCase()}.json`;
+  let response = await fetch(URL);
+  let data = await response.json();
+  let rate = data[toCurr.value.toLowerCase()];
+
+  let finalAmount = amtVal * rate;
+  msg.innerText = `${amtVal} ${fromCurr.value} = ${finalAmount} ${toCurr.value}`;
 };
